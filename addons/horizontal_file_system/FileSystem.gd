@@ -30,6 +30,9 @@ var newSize: Vector2
 # Toggle for when the file system is moved to bottom
 var filesBottom: bool = false
 
+# Store vertical children for when the plugin is disabled
+var fileVBox
+var fileVSplitter
 
 func _enter_tree() -> void:
 	# Add tool button to move shelf to editor bottom
@@ -39,19 +42,27 @@ func _enter_tree() -> void:
 	FileDock = self.get_editor_interface().get_file_system_dock()
 	
 	# Replace vertical elements with horizontal ones and set parameters
+	hBox.size = Vector2(FileDock.get_window().size.x, hBox.size.y)
+	
+	fileVBox = FileDock.get_child(childVBox)
 	FileDock.get_child(childVBox).replace_by(hBox, true)
+	
 	hSplitter.split_offset = initialSplit
 	hSplitter.add_theme_constant_override("separation", separationAmount)
 	hSplitter.size = Vector2(1280, FileDock.get_window().size.y)
+	
+	fileVSplitter = FileDock.get_child(childVSplitter)
 	FileDock.get_child(childVSplitter).replace_by(hSplitter, true)
 
 
 func _exit_tree() -> void:
 	remove_tool_menu_item("Files to Bottom")
 	remove_control_from_bottom_panel(FileDock)
+	FileDock.get_child(childVBox).replace_by(fileVBox)
+	FileDock.get_child(childVSplitter).replace_by(fileVSplitter)
 	add_control_to_dock(EditorPlugin.DOCK_SLOT_LEFT_BR, FileDock)
-	printerr("RELOAD PROJECT TO ALLOW FILE SYSTEM TO RESET")
-
+	# Reload is no longer needed, replace FileDock children with the cache
+	
 
 func _process(delta: float) -> void:
 	newSize = FileDock.get_window().size
