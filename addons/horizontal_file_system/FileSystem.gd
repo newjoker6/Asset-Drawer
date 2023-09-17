@@ -60,6 +60,8 @@ func _exit_tree() -> void:
 	remove_control_from_bottom_panel(FileDock)
 	FileDock.get_child(childVBox).replace_by(fileVBox)
 	FileDock.get_child(childVSplitter).replace_by(fileVSplitter)
+	if(not filesBottom):
+		remove_control_from_docks(FileDock)
 	add_control_to_dock(EditorPlugin.DOCK_SLOT_LEFT_BR, FileDock)
 	# Reload is no longer needed, replace FileDock children with the cache
 	
