@@ -9,7 +9,7 @@ var childVSplitter: int = 3
 var separationAmount: int = 10
 
 # Initial spacing for the first item, filetree
-var initialSplit:int = 250
+var initialSplit: int = 250
 
 # Padding from the bottom when popped out
 var padding: int = 20
@@ -62,14 +62,12 @@ func _process(delta: float) -> void:
 		FileDock.get_child(3).get_child(1).size.y = newSize.y - padding
 		return
 		
+	# Adjust the size of the file system based on how far up
+	# the drawer has been pulled
 	if FileDock.get_window().name == "root" && filesBottom == true:
-		# Adjusts height of file system when in the bottom panel.
-		# Larger number is shorter panel. Tweaking here instead of
-		# the top allows for live previewing without restarting
-		# the plugin.
-		var heightPadding: float = 1.5
-		FileDock.get_child(3).get_child(0).size.y = newSize.y/heightPadding
-		FileDock.get_child(3).get_child(1).size.y = newSize.y/heightPadding
+		newSize = FileDock.get_parent().size
+		FileDock.get_child(3).get_child(0).size.y = newSize.y - 60
+		FileDock.get_child(3).get_child(1).size.y = newSize.y - 60
 		return
 	
 	# Keeps our systems sized when popped out
@@ -86,7 +84,7 @@ func _process(delta: float) -> void:
 			
 		return
 
-
+# Moves the files between the bottom panel and the original dock
 func FilesToBottom() -> void:
 	if filesBottom == true:
 		remove_control_from_bottom_panel(FileDock)
