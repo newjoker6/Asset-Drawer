@@ -24,8 +24,17 @@ var hSplitter: HSplitContainer = HSplitContainer.new()
 # Used to center window the first time you pop it out
 var initialLoad: bool = false
 
+# New size used for when the windows resize
+var newSize: Vector2
+
+# Toggle for when the file system is moved to bottom
+var filesBottom: bool = false
+
 
 func _enter_tree() -> void:
+	# Add tool button to move shelf to editor bottom
+	add_tool_menu_item("Files to Bottom", Callable(self, "FilesToBottom"))
+	
 	# Get our file system
 	FileDock = self.get_editor_interface().get_file_system_dock()
 	
@@ -38,20 +47,33 @@ func _enter_tree() -> void:
 
 
 func _exit_tree() -> void:
+	remove_tool_menu_item("Files to Bottom")
+	remove_control_from_bottom_panel(FileDock)
+	add_control_to_dock(EditorPlugin.DOCK_SLOT_LEFT_BR, FileDock)
 	printerr("RELOAD PROJECT TO ALLOW FILE SYSTEM TO RESET")
 
 
 func _process(delta: float) -> void:
-	var newSize: Vector2 = FileDock.get_window().size
+	newSize = FileDock.get_window().size
 	
 	# Keeps the file system from being unusable in size
-	if FileDock.get_window().name == "root":
+	if FileDock.get_window().name == "root" && filesBottom == false:
 		FileDock.get_child(3).get_child(0).size.y = newSize.y - padding
 		FileDock.get_child(3).get_child(1).size.y = newSize.y - padding
 		return
+		
+	if FileDock.get_window().name == "root" && filesBottom == true:
+		# Adjusts height of file system when in the bottom panel.
+		# Larger number is shorter panel. Tweaking here instead of
+		# the top allows for live previewing without restarting
+		# the plugin.
+		var heightPadding: float = 1.5
+		FileDock.get_child(3).get_child(0).size.y = newSize.y/heightPadding
+		FileDock.get_child(3).get_child(1).size.y = newSize.y/heightPadding
+		return
 	
 	# Keeps our systems sized when popped out
-	if (FileDock.get_window().name != "root"):
+	if (FileDock.get_window().name != "root" && filesBottom == false):
 		FileDock.get_window().min_size.y = 50
 		FileDock.get_child(3).get_child(0).size.y = newSize.y - padding
 		FileDock.get_child(3).get_child(1).size.y = newSize.y - padding
@@ -65,4 +87,15 @@ func _process(delta: float) -> void:
 		return
 
 
+func FilesToBottom() -> void:
+	if filesBottom == true:
+		remove_control_from_bottom_panel(FileDock)
+		add_control_to_dock(EditorPlugin.DOCK_SLOT_LEFT_BR, FileDock)
+		filesBottom = false
+		return
+
+	FileDock = self.get_editor_interface().get_file_system_dock()
+	remove_control_from_docks(FileDock)
+	add_control_to_bottom_panel(FileDock, "File System")
+	filesBottom = true
 
