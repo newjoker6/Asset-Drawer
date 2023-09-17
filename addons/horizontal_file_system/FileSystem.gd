@@ -42,8 +42,6 @@ func _enter_tree() -> void:
 	FileDock = self.get_editor_interface().get_file_system_dock()
 	
 	# Replace vertical elements with horizontal ones and set parameters
-	hBox.size = Vector2(FileDock.get_window().size.x, hBox.size.y)
-	
 	fileVBox = FileDock.get_child(childVBox)
 	FileDock.get_child(childVBox).replace_by(hBox, true)
 	
