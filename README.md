@@ -3,15 +3,18 @@
 
 
 **Activate the Plugin and Press the Split Button**
+<br>
 <img src="hubimages/DockedDefault.png" >
 <img src="hubimages/DockedDefault2.png" >
-<br>
+<br><br>
 **Undock to Floating Window**
+<br>
 <img src="hubimages/FloatingWindow.png" >
-<br>
+<br><br>
 **Dock to the Bottom**
-Head on up to Project > Tools > Files to Bottom to dock your file system to the bottom of your editor.
 <br>
+Head on up to Project > Tools > Files to Bottom to dock your file system to the bottom of your editor.
+<br><br>
 <img src="hubimages/Tool.png" >
 <img src="hubimages/BottomDock.png" >
 <img src="hubimages/BottomDock2.png" >
