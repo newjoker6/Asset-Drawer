@@ -17,5 +17,8 @@ Head on up to Project > Tools > Files to Bottom to dock your file system to the 
 <br><br>
 <img src="hubimages/Tool.png" >
 <img src="hubimages/BottomDock.png" >
+<br><br>
+**Slide the split all the way to remove the file tree, and bring it back anytime**
+<br>
 <img src="hubimages/BottomDock2.png" >
 <br><br>
