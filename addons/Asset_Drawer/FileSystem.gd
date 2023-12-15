@@ -13,25 +13,40 @@ var filesBottom: bool = false
 var newSize: Vector2
 var initialLoad: bool = false
 
+var AssetDrawerShortcut: InputEventKey = InputEventKey.new()
+var showing: bool = false
+
 func _enter_tree() -> void:
 	# Add tool button to move shelf to editor bottom
 	add_tool_menu_item("Files to Bottom", Callable(self, "FilesToBottom"))
 	
 	# Get our file system
 	FileDock = self.get_editor_interface().get_file_system_dock()
+	FilesToBottom()
 
+#region show hide filesystem
+func _input(event: InputEvent) -> void:
+	if event is InputEventKey:
+		if (Input.is_key_pressed(KEY_SPACE) &&
+		Input.is_key_pressed(KEY_CTRL)):
+			if filesBottom == true:
+				match showing:
+					false:
+						make_bottom_panel_item_visible(FileDock)
+						showing = true
+					true:
+						print("hide")
+						hide_bottom_panel()
+						showing = false
+#endregion
 
 func _exit_tree() -> void:
 	remove_tool_menu_item("Files to Bottom")
-	remove_control_from_bottom_panel(FileDock)
-	if (FileDock.get_window().name != "root"):
-		FileDock.get_window().emit_signal("close_requested")
-	if(not filesBottom):
-		remove_control_from_docks(FileDock)
-	add_control_to_dock(EditorPlugin.DOCK_SLOT_LEFT_BR, FileDock)
+	FilesToBottom()
 
 
 func _process(delta: float) -> void:
+	
 	newSize = FileDock.get_window().size
 	
 	# Keeps the file system from being unusable in size
