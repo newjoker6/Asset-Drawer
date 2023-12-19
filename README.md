@@ -1,4 +1,4 @@
-# Horizontal File System
+# Asset Drawer
  Plugin for the Godot game engine that allows you to change the file system from a vertical stack split to a horizontal split. This still works in floating mode and gives you the ability to dock the file system at the bottom of the editor. The bottom of the editor is where Output and your Debugging tools are located where windows can not normally be docked to.
 
 
