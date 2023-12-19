@@ -1,5 +1,5 @@
 # Asset Drawer
- Plugin for the Godot game engine that allows you to change the file system from a vertical stack split to a horizontal split. This still works in floating mode and gives you the ability to dock the file system at the bottom of the editor. The bottom of the editor is where Output and your Debugging tools are located where windows can not normally be docked to.
+ Plugin for the Godot game engine that allows you to dock the file system to the bottom of the editor is where Output and your Debugging tools are located where windows can not normally be docked to. Click on the file split button(part of godot) to split it to a horizontal system. You can also use the shortcut ctrl + space to popup and hide the asset drawer at anytime.
 
 
 **Dock to the Bottom**
