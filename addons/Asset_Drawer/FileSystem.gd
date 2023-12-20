@@ -22,6 +22,7 @@ func _enter_tree() -> void:
 	
 	# Get our file system
 	FileDock = self.get_editor_interface().get_file_system_dock()
+	await get_tree().create_timer(0.1).timeout
 	FilesToBottom()
 
 #region show hide filesystem
