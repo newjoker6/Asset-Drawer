@@ -25,20 +25,23 @@ func _enter_tree() -> void:
 	await get_tree().create_timer(0.1).timeout
 	FilesToBottom()
 
+	# Get shortcut
+	AssetDrawerShortcut = preload("res://addons/Asset_Drawer/AssetDrawerShortcut.tres")
+
 #region show hide filesystem
 func _input(event: InputEvent) -> void:
-	if event is InputEventKey:
-		if (Input.is_key_pressed(KEY_SPACE) &&
-		Input.is_key_pressed(KEY_CTRL)):
-			if filesBottom == true:
-				match showing:
-					false:
-						make_bottom_panel_item_visible(FileDock)
-						showing = true
-					true:
-						print("hide")
-						hide_bottom_panel()
-						showing = false
+	if (AssetDrawerShortcut.is_match(event) &&
+	event.is_pressed() &&
+	!event.is_echo()):
+		if filesBottom == true:
+			match showing:
+				false:
+					make_bottom_panel_item_visible(FileDock)
+					showing = true
+				true:
+					print("hide")
+					hide_bottom_panel()
+					showing = false
 #endregion
 
 func _exit_tree() -> void:
