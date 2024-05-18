@@ -30,8 +30,9 @@ func _enter_tree() -> void:
 
 #region show hide filesystem
 func _input(event: InputEvent) -> void:
-	# Toggle the drawer on shortcut release
-	if AssetDrawerShortcut.is_match(event) and event.is_released() and not event.is_echo():
+	if (AssetDrawerShortcut.is_match(event) &&
+	event.is_pressed() &&
+	!event.is_echo()):
 		if filesBottom == true:
 			match showing:
 				false:
@@ -47,7 +48,9 @@ func _exit_tree() -> void:
 	remove_tool_menu_item("Files to Bottom")
 	FilesToBottom()
 
+
 func _process(delta: float) -> void:
+	
 	newSize = FileDock.get_window().size
 	
 	# Keeps the file system from being unusable in size
