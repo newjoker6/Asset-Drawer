@@ -4,6 +4,9 @@ extends EditorPlugin
 # Padding from the bottom when popped out
 var padding: int = 20
 
+# Padding from the bottom when not popped out
+var bottompadding: int = 60
+
 # The file system
 var FileDock: Object
 
@@ -63,8 +66,13 @@ func _process(delta: float) -> void:
 	# the drawer has been pulled
 	if FileDock.get_window().name == "root" && filesBottom == true:
 		newSize = FileDock.get_parent().size
-		FileDock.get_child(3).get_child(0).size.y = newSize.y - 60
-		FileDock.get_child(3).get_child(1).size.y = newSize.y - 60
+		var editor = get_editor_interface()
+		var editorsettings = editor.get_editor_settings()
+		var fontsize: int = editorsettings.get_setting("interface/editor/main_font_size")
+		var editorscale = EditorInterface.get_editor_scale()
+		
+		FileDock.get_child(3).get_child(0).size.y = newSize.y - (fontsize * 2) - (bottompadding * EditorInterface.get_editor_scale())
+		FileDock.get_child(3).get_child(1).size.y = newSize.y - (fontsize * 2) - (bottompadding * EditorInterface.get_editor_scale())
 		return
 	
 	# Keeps our systems sized when popped out
