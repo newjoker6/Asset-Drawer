@@ -28,6 +28,11 @@ func _enter_tree() -> void:
 	await get_tree().create_timer(0.1).timeout
 	FilesToBottom()
 
+	# Prevent file tree from being shrunk on load
+	await get_tree().create_timer(0.1).timeout
+	var file_split_container := FileDock.get_child(3) as SplitContainer
+	file_split_container .split_offset = 175
+
 	# Get shortcut
 	AssetDrawerShortcut = preload("res://addons/Asset_Drawer/AssetDrawerShortcut.tres")
 
