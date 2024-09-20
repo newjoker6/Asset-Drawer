@@ -1,110 +1,117 @@
 @tool
 extends EditorPlugin
 
-# Padding from the bottom when popped out
-var padding: int = 20
+## The root scene
+const ROOT: StringName = &"root"
+## Padding from the bottom when popped out
+const PADDING: int = 20
+## Padding from the bottom when not popped out
+const BOTTOM_PADDING: int = 60
+## Minimum height of the dock
+const MIN_HEIGHT: int = 50
 
-# Padding from the bottom when not popped out
-var bottompadding: int = 60
+## The file system
+var file_dock: FileSystemDock = null
 
-# The file system
-var FileDock: Object
+var file_split_container: SplitContainer = null
+var file_tree: Tree = null
+var file_container: VBoxContainer = null
+var asset_drawer_shortcut: InputEventKey = InputEventKey.new()
 
-# Toggle for when the file system is moved to bottom
-var filesBottom: bool = false
-
-var newSize: Vector2
-var initialLoad: bool = false
-
-var AssetDrawerShortcut: InputEventKey = InputEventKey.new()
+## Toggle for when the file system is moved to bottom
+var files_bottom: bool = false
+var new_size: Vector2
+var initial_load: bool = false
 var showing: bool = false
+
 
 func _enter_tree() -> void:
 	# Add tool button to move shelf to editor bottom
-	add_tool_menu_item("Files to Bottom", Callable(self, "FilesToBottom"))
-	
-	# Get our file system
-	FileDock = self.get_editor_interface().get_file_system_dock()
+	add_tool_menu_item("Files to Bottom", files_to_bottom)
+
+	init_file_dock()
+
 	await get_tree().create_timer(0.1).timeout
-	FilesToBottom()
+	files_to_bottom()
 
 	# Prevent file tree from being shrunk on load
 	await get_tree().create_timer(0.1).timeout
-	var file_split_container := FileDock.get_child(3) as SplitContainer
-	file_split_container .split_offset = 175
+	file_split_container.split_offset = 175
 
 	# Get shortcut
-	AssetDrawerShortcut = preload("res://addons/Asset_Drawer/AssetDrawerShortcut.tres")
+	asset_drawer_shortcut = preload("res://addons/Asset_Drawer/AssetDrawerShortcut.tres") as InputEventKey
+
+func init_file_dock() -> void:
+	# Get our file system
+	file_dock = EditorInterface.get_file_system_dock()
+	file_split_container = file_dock.get_child(3) as SplitContainer
+	file_tree = file_split_container.get_child(0) as Tree
+	file_container = file_split_container.get_child(1) as VBoxContainer
 
 #region show hide filesystem
 func _input(event: InputEvent) -> void:
-	if (AssetDrawerShortcut.is_match(event) &&
-	event.is_pressed() &&
-	!event.is_echo()):
-		if filesBottom == true:
-			match showing:
-				false:
-					make_bottom_panel_item_visible(FileDock)
-					showing = true
-				true:
-					print("hide")
-					hide_bottom_panel()
-					showing = false
+	if not files_bottom:
+		return
+
+	if asset_drawer_shortcut.is_match(event) and event.is_pressed() and not event.is_echo():
+		if showing:
+			hide_bottom_panel()
+		else:
+			make_bottom_panel_item_visible(file_dock)
+
+		showing = not showing
 #endregion
 
 func _exit_tree() -> void:
 	remove_tool_menu_item("Files to Bottom")
-	FilesToBottom()
+	files_to_bottom()
 
 
-func _process(delta: float) -> void:
-	
-	newSize = FileDock.get_window().size
-	
+func _process(_delta: float) -> void:
+	var window := file_dock.get_window()
+	new_size = window.size
+
 	# Keeps the file system from being unusable in size
-	if FileDock.get_window().name == "root" && filesBottom == false:
-		FileDock.get_child(3).get_child(0).size.y = newSize.y - padding
-		FileDock.get_child(3).get_child(1).size.y = newSize.y - padding
+	if window.name == ROOT and not files_bottom:
+		file_tree.size.y = new_size.y - PADDING
+		file_container.size.y = new_size.y - PADDING
 		return
-		
+
 	# Adjust the size of the file system based on how far up
 	# the drawer has been pulled
-	if FileDock.get_window().name == "root" && filesBottom == true:
-		newSize = FileDock.get_parent().size
-		var editor = get_editor_interface()
-		var editorsettings = editor.get_editor_settings()
+	if window.name == ROOT and files_bottom:
+		var dock_container := file_dock.get_parent() as Control
+		new_size = dock_container.size
+		var editorsettings := EditorInterface.get_editor_settings()
 		var fontsize: int = editorsettings.get_setting("interface/editor/main_font_size")
-		var editorscale = EditorInterface.get_editor_scale()
-		
-		FileDock.get_child(3).get_child(0).size.y = newSize.y - (fontsize * 2) - (bottompadding * EditorInterface.get_editor_scale())
-		FileDock.get_child(3).get_child(1).size.y = newSize.y - (fontsize * 2) - (bottompadding * EditorInterface.get_editor_scale())
+		var editorscale := EditorInterface.get_editor_scale()
+
+		file_tree.size.y = new_size.y - (fontsize * 2) - (BOTTOM_PADDING * editorscale)
+		file_container.size.y = new_size.y - (fontsize * 2) - (BOTTOM_PADDING * editorscale)
 		return
-	
+
 	# Keeps our systems sized when popped out
-	if (FileDock.get_window().name != "root" && filesBottom == false):
-		FileDock.get_window().min_size.y = 50
-		FileDock.get_child(3).get_child(0).size.y = newSize.y - padding
-		FileDock.get_child(3).get_child(1).size.y = newSize.y - padding
-		
+	if window.name != ROOT and not files_bottom:
+		window.min_size.y = MIN_HEIGHT
+		file_tree.size.y = new_size.y - PADDING
+		file_container.size.y = new_size.y - PADDING
+
 		# Centers window on first pop
-		if initialLoad == false:
-			initialLoad = true
+		if not initial_load:
+			initial_load = true
 			var screenSize: Vector2 = DisplayServer.screen_get_size()
-			FileDock.get_window().position = screenSize/2
-			
-		return
+			window.position = screenSize / 2
+
 
 # Moves the files between the bottom panel and the original dock
-func FilesToBottom() -> void:
-	if filesBottom == true:
-		remove_control_from_bottom_panel(FileDock)
-		add_control_to_dock(EditorPlugin.DOCK_SLOT_LEFT_BR, FileDock)
-		filesBottom = false
+func files_to_bottom() -> void:
+	if files_bottom:
+		remove_control_from_bottom_panel(file_dock)
+		add_control_to_dock(EditorPlugin.DOCK_SLOT_LEFT_BR, file_dock)
+		files_bottom = false
 		return
 
-	FileDock = self.get_editor_interface().get_file_system_dock()
-	remove_control_from_docks(FileDock)
-	add_control_to_bottom_panel(FileDock, "File System")
-	filesBottom = true
-
-
+	init_file_dock()
+	remove_control_from_docks(file_dock)
+	add_control_to_bottom_panel(file_dock, "File System")
+	files_bottom = true
